@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from gi.repository import GObject, Peas # pylint: disable-msg=E0611
-import threading
+from gi.repository import GObject, Peas, Totem # pylint: disable-msg=E0611
+from threading import Timer
 from os.path import expanduser, exists
 
 class StarterPlugin (GObject.Object, Peas.Activatable):
@@ -31,6 +31,8 @@ class StarterPlugin (GObject.Object, Peas.Activatable):
             self.last_file = last[0]
             self.last_time = int(last[1])
             data_file.close()
+            self.restore_last_file_timer = Timer(3.0, self.restore_last_file)
+            self.restore_last_file_timer.start()
 
         print("Remember position plugin activated")
 
@@ -39,12 +41,14 @@ class StarterPlugin (GObject.Object, Peas.Activatable):
         self._totem = None
 
     def get_current_time(self):
-        self.update_time_timer = threading.Timer(3.0, self.get_current_time)
+        self.update_time_timer = Timer(3.0, self.get_current_time)
         self.update_time_timer.start()
         self.time = self._totem.get_property('current_time')
         print("Time updated: %d, seekable: %s" % (self.time, self.object.is_seekable()))
 
     def file_opened(self, to, f):
+        if hasattr(self, 'restore_last_file_timer'):
+            self.restore_last_file_timer.cancel()
         print("Opened file: %s" % f)
         if f == self.last_file:
             print("Restoring position in file to %d" % self.last_time)
@@ -57,7 +61,7 @@ class StarterPlugin (GObject.Object, Peas.Activatable):
             self._totem.seek_time(self.last_time, False)
         else:
             print("Stream is still not seekable...")
-            threading.Timer(0.5, self.go_to_last_position).start()
+            Timer(0.5, self.go_to_last_position).start()
 
     def file_closed(self, to):
         if hasattr(self, 'update_time_timer'):
@@ -70,6 +74,9 @@ class StarterPlugin (GObject.Object, Peas.Activatable):
         self.get_current_time()
         print("Playng file: %s" % path)
         self.file = path
+
+    def restore_last_file(self):
+        self._totem.remote_command(Totem.RemoteCommand.REPLACE, self.last_file)
 
     def _write_last_time(self):
         print("Saving file position: %s - %d" % (self.last_file, self.last_time))
