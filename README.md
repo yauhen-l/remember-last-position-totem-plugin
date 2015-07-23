@@ -11,6 +11,8 @@ On video playing it stores file location and current offset in `~/.local/share/t
 
 After opening the same file position will be restored.
 
+*_CAUTION!_ 1) For now plugin remembers only one last played file. 2) Not tested on web-sources*
+
 # To do
 1. Remember history of more than one file
 2. Open last played file on Totem start
