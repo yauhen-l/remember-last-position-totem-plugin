@@ -16,3 +16,6 @@ After opening the same file position will be restored.
 # To do
 1. Remember history of more than one file
 2. Open last played file on Totem start
+
+## Thanks to Asanka's Weblog for quick start:
+http://asanka-abeyweera.blogspot.com/2012/03/writing-plugins-for-totem-movie-player.html
