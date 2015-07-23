@@ -1,0 +1,9 @@
+[Plugin]
+Loader=python3
+Module=remember-last-position
+IAge=1
+Name=Remember last position
+Description=Restores previosely played file and position
+Authors=Yauhen Lazurkin <foryauhen@gmail.com>
+Copyright=Copyright © 2015 Yauhen Lazurkin
+Website=http://www.gnome.org/projects/totem/
