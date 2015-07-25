@@ -2,7 +2,8 @@
 
 from gi.repository import GObject, Peas, Totem # pylint: disable-msg=E0611
 from threading import Timer
-from os.path import expanduser, exists
+from os.path import expanduser, exists, isfile
+from urllib.request import unquote
 import csv
 
 class StarterPlugin (GObject.Object, Peas.Activatable):
@@ -12,7 +13,7 @@ class StarterPlugin (GObject.Object, Peas.Activatable):
 
     def __init__ (self):
         GObject.Object.__init__ (self)
-        self.data_path = "%s/.local/share/totem/plugins/remember-last-position/data" % expanduser("~")
+        self.data_path = "%s/.local/share/totem/plugins/remember-last-position/data-v2" % expanduser("~")
         self._totem = None
         self.last_file = ""
         self.last_time = 0
@@ -32,8 +33,8 @@ class StarterPlugin (GObject.Object, Peas.Activatable):
                 print("Last played is: %s" % self.last_files)
                 self.last_file = self.last_files[0][0]
                 self.last_time = int(self.last_files[0][1])
-            self.restore_last_file_timer = Timer(3.0, self.restore_last_file)
-            self.restore_last_file_timer.start()
+                self.restore_last_file_timer = Timer(3.0, self.restore_last_file)
+                self.restore_last_file_timer.start()
 
         print("Remember position plugin activated")
 
@@ -50,9 +51,10 @@ class StarterPlugin (GObject.Object, Peas.Activatable):
         if hasattr(self, 'restore_last_file_timer'):
             self.restore_last_file_timer.cancel()
         print("Opened file: %s" % f)
-        if f == self.last_file:
+        position = self._get_position(f)
+        if position != None:
+            self.last_time = int(position)
             print("Restoring position in file to %d" % self.last_time)
-            print(to.get_current_mrl())
             self.go_to_last_position()
 
     def go_to_last_position(self):
@@ -77,15 +79,19 @@ class StarterPlugin (GObject.Object, Peas.Activatable):
         self.file = path
 
     def restore_last_file(self):
-        if exists(self.last_file):
+        is_exist = exists(unquote(self.last_file.replace('file://', '')))
+        print("Restoring file: %s at position %d"  % (self.last_file, self.last_time, ))
+        if is_exist:
             self._totem.remote_command(Totem.RemoteCommand.REPLACE, self.last_file)
 
     def _write_last_time(self):
         print("Saving file position: %s - %d" % (self.last_file, self.last_time))
         with open(self.data_path, 'w') as data_file:
             w = csv.writer(data_file)
-            w.writerows(self.last_files[:3])
+            w.writerows(self.last_files[:10])
 
     def _get_position(self, f):
-        dict(self.last_files.reverse()).get(f)
+        files = self.last_files[:]
+        files.reverse()
+        return dict(files).get(f)
 
