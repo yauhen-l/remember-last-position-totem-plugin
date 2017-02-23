@@ -16,8 +16,9 @@ Then start Totem and enable "Remember last position" plugin
 in Plugins view.
 
 # How it works
-On video playing it stores file path and current video location offset
-in `remember-last-position.pydata` at the plugin folder.
+On video playback, it stores the file path of the current video, and
+its current time offset in `remember-last-position.pydata` at the
+plugin folder.
 
 After opening the same file, its location will be restored.
 

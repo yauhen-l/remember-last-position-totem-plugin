@@ -7,13 +7,13 @@ Extended by Liran Funaro <funaro@cs.technion.ac.il>
 from configparser import ConfigParser
 
 from gi.repository import GObject, Peas, Totem
-from threading import Timer, Thread
 import os
+import sys
+import time
 from ast import literal_eval
 from pprint import pprint
 from collections import OrderedDict
-import sys
-import time
+from threading import Timer, Thread
 
 
 def normalize_path(path):
@@ -82,7 +82,7 @@ class RememberLastPositionPlugin(GObject.Object, Peas.Activatable):
             except:
                 return self.defaults_conf[key]
 
-        self.load_on_start = read_cfg('load-on-start', lambda x: x=='true' or x=='1')
+        self.load_on_start = read_cfg('load-on-start', lambda x: x == 'true' or x == '1')
         self.load_on_start_delay = read_cfg('load-on-start-delay')
         self.history_length = read_cfg('history-length')
         self.update_interval = read_cfg('update-interval')
