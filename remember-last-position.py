@@ -136,16 +136,19 @@ class RememberLastPositionPlugin(GObject.Object, Peas.Activatable):
         if not self.last_time:
             return
 
-        def go_to_last_position_thread():
+        def go_to_last_position_thread(totem, last_time):
+            if not last_time:
+                return
+
             # Wait for the object to be seekable
-            while not self.object.is_seekable():
+            while not totem.is_seekable():
                 time.sleep(0.05)
 
             # Seek to the last known time (True: force accurate seek)
-            self._totem.seek_time(self.last_time, True)
+            totem.seek_time(last_time, True)
 
         # Run on a different thread to avoid delay
-        Thread(target=go_to_last_position_thread, daemon=True).start()
+        Thread(target=go_to_last_position_thread, args=[self._totem, self.last_time], daemon=True).start()
 
     def update_current_time(self):
         """ Read the current seek position """
