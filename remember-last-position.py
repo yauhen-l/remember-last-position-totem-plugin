@@ -6,7 +6,7 @@ Extended by Liran Funaro <funaro@cs.technion.ac.il>
 """
 from configparser import ConfigParser
 
-from gi.repository import GObject, Peas, Totem
+from gi.repository import GLib, GObject, Peas, Totem
 import os
 import sys
 import time
@@ -138,17 +138,17 @@ class RememberLastPositionPlugin(GObject.Object, Peas.Activatable):
 
         def go_to_last_position_thread(totem, last_time):
             if not last_time:
-                return
+                return False
+            if not totem.is_seekable():
+                # Wait for the object to be seekable
+                return True
 
-            # Wait for the object to be seekable
-            while not totem.is_seekable():
-                time.sleep(0.05)
-
-            # Seek to the last known time (True: force accurate seek)
+            # Seek to the last known time (False: force accurate seek)
             totem.seek_time(last_time, True)
+            return False
 
         # Run on a different thread to avoid delay
-        Thread(target=go_to_last_position_thread, args=[self._totem, self.last_time], daemon=True).start()
+        GLib.timeout_add(50, go_to_last_position_thread, self._totem, self.last_time)
 
     def update_current_time(self):
         """ Read the current seek position """
