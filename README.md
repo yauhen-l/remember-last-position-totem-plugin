@@ -1,22 +1,42 @@
-# remember-last-position-totem-plugin
-Totem video player plugin that restores position in the last played file
+# Remember Last Position Totem Plugin
+Totem video player plugin that starts a video at the location you paused
+it last time it played.
+It also supports automatically continue to play the last video when
+Totem starts.
 
 # Installation
-Put `remember-last-position.plugin` and `remember-last-position.py` files in `~/.local/share/totem/plugins/remember-last-position directory`
+Create a plugin folder in `~/.local/share/totem/plugins/<plugin-folder>`,
+and put all the plugin files there:
 
-Then start Totem and enable "Remember last position" plugin in Plugins view.
+        remember-last-position.plugin
+        remember-last-position.py
+        remember-last-position.conf
+
+Then start Totem and enable "Remember last position" plugin
+in Plugins view.
 
 # How it works
-On Totem start it waits 3 seconds and then opens last played file and restores position in it.
+On video playback, it stores the file path of the current video, and
+its current time offset in `remember-last-position.pydata` at the
+plugin folder.
 
-On video playing it stores file location and current offset in `~/.local/share/totem/plugins/remember-last-position/data` file within 3 seconds delay.
+After opening the same file, its location will be restored.
 
-After opening the same file position will be restored.
+If load-on-start feature is enabled (disabled by default),
+on Totem start it will waits 5 seconds (default), and then opens the
+last played file and restores its video location.
 
-*_CAUTION!_ 1) For now plugin remembers only one last played file. 2) Not tested on web-sources*
+*_CAUTION!_ Not tested on web-sources*
 
-# To do
-Remember history of more than one file
+# Tuning
+It is possible to tune the plugin parameters via
+`remember-last-position.conf` file:
 
-## Thanks to Asanka's Weblog for quick start:
++ `load-on-start`: Explained above (true, false).
++ `load-on-start-delay`: The time to wait for the video to start (seconds).
++ `history-length`: How many files will be stored (integer).
++ `update-interval`: Update the video position on interval (seconds).
+
+## Special Thanks:
+Thanks to Asanka's Weblog for quick start:
 http://asanka-abeyweera.blogspot.com/2012/03/writing-plugins-for-totem-movie-player.html
